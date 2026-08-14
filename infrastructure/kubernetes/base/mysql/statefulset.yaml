@@ -34,8 +34,8 @@ spec:
 
             - name: MYSQL_DATABASE
               valueFrom:
-                secretKeyRef:
-                  name: mysql-secret
+                configMapKeyRef:
+                  name: mysql-config
                   key: database
 
             - name: MYSQL_USER
@@ -54,6 +54,10 @@ spec:
             - name: mysql-data
               mountPath: /var/lib/mysql
 
+            - name: mysql-config
+              mountPath: /etc/mysql/conf.d/custom.cnf
+              subPath: my.cnf
+
           livenessProbe:
             tcpSocket:
               port: 3306
@@ -65,7 +69,10 @@ spec:
               port: 3306
             initialDelaySeconds: 10
             periodSeconds: 5
-
+      volumes:
+        - name: mysql-config
+          configMap:
+            name: mysql-config
   volumeClaimTemplates:
     - metadata:
         name: mysql-data
@@ -75,3 +82,5 @@ spec:
         resources:
           requests:
             storage: 10Gi
+  
+  
